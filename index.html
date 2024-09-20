@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Diagnosis</title>
+  <style>
+    /* Basic styling for the body */
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(45deg, #f3ec78, #af4261);
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Container for all content */
+    .container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      text-align: center;
+      width: 350px;
+      animation: fadeIn 1.2s ease-in-out;
+    }
+
+    /* Title styling */
+    h1 {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 30px;
+      animation: slideIn 1.5s ease-in-out;
+    }
+
+    /* Input styling */
+    input[type="file"] {
+      padding: 10px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    /* Button styling */
+    button {
+      background-color: #ff6f61;
+      color: white;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 50px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+      background-color: #ff9a8d;
+      transform: scale(1.1);
+    }
+
+    /* Result display styling */
+    #diagnosisResult {
+      margin-top: 30px;
+      font-size: 20px;
+      color: #333;
+      opacity: 0;
+      animation: fadeInResult 2s ease-in-out forwards;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+      0% {
+        transform: translateY(-30px);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeInResult {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Upload Image for Diagnosis</h1>
+    
+    <!-- Input field for selecting an image -->
+    <input type="file" id="imageInput" accept="image/*">
+    <br><br>
+    
+    <!-- Button to trigger the diagnosis -->
+    <button id="submitBtn">Get Diagnosis</button>
+    
+    <!-- Section to display the result -->
+    <h3 id="diagnosisResult"></h3>
+  </div>
+
+  <script>
+    document.getElementById('submitBtn').addEventListener('click', async () => {
+  const input = document.getElementById('imageInput');
+  const diagnosisResult = document.getElementById('diagnosisResult');
+  
+  if (input.files.length === 0) {
+    alert('Please select an image first.');
+    return;
+  }
+
+  // Resetting the result for new image input
+  diagnosisResult.classList.remove('showResult');
+  diagnosisResult.textContent = "";
+
+  const file = input.files[0];
+  const formData = new FormData();
+  formData.append('image', file);
+
+  try {
+    const response = await fetch('http://localhost:5000/diagnose', {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    // Displaying the diagnosis with animation
+    diagnosisResult.textContent = result.diagnosis;
+    diagnosisResult.classList.add('showResult');
+
+  } catch (error) {
+    console.error('Error during diagnosis:', error);
+    diagnosisResult.textContent = `An error occurred: ${error.message}`;
+  }
+});
+
+    
+  </script>
+</body>
+</html>
